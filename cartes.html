@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartes - Jeux de Cartes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="cartes.html">Cartes</a>
+        <a href="jeux.html">Jouer</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+    <h1 class="text-3xl">Nos Cartes</h1>
+    <div class="cards-container flex flex-wrap" id="cards-contain"></div>
+    <footer>
+     © 2024 Jeux de Cartes. Said@Tous droits réservés.
+
+    </footer>
+
+    <script>
+   
+
+fetch('cards.json')
+    .then(response => response.json())
+    .then(cardsData => {
+        const container = document.getElementById('cards-contain');
+        const displayedCards = new Set();
+
+        cardsData.forEach(card => {
+            if (!displayedCards.has(card.image_url)) {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.innerHTML = `
+                    <img src="${card.printings[0].image_url}" alt="${card.id}">
+                    <h2>${card.name}</h2>
+                    <p>${card.functional_text_plain}</p>
+                    <p>${card.types}
+                `;
+                container.appendChild(cardElement);
+                displayedCards.add(card.unique_id);
+            }
+        });
+    })
+    .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
+
+
+
+
+
+    </script>
+</body>
+
+
+
+
+
+</html>
+
+
+
+
+
+
+
+

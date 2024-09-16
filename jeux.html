@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de Cartes</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <nav>
+        <a href="index.html">Accueil</a>
+        <a href="cartes.html">Cartes</a>
+        <a href="jeux.html">Jouer</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+    <h1 class="text-3xl">Jeu de Cartes</h1>
+    <div class="game-container">
+        <h2 class="text-2xl">Vos Cartes</h2>
+        <div class="player-hand" id="player-hand"></div>
+        <div class="duel-container" id="duel-container"></div>
+        <h2 class="text-2xl">Cartes Adversaire</h2>
+        <div class="opponent-hand" id="opponent-hand"></div>
+        <div class="score-container">
+            <p>Score Joueur: <span id="player-score">0</span></p>
+            <p>Score Adversaire: <span id="opponent-score">0</span></p>
+        </div>
+        <button id="start-game">Démarrer le jeu</button>
+        <button id="replay-game" style="display:none;">Rejouer</button>
+    </div>
+    <footer>
+        © 2024 Jeux de Cartes. Said@Tous droits réservés.
+    </footer>
+    
+    <script>
+        let playerHand = [];
+        let opponentHand = [];
+        let playerScore = 0;
+        let opponentScore = 0;
+
+        fetch('cards.json')
+            .then(response => response.json())
+            .then(cardsData => {
+                const startGameButton = document.getElementById('start-game');
+                const replayGameButton = document.getElementById('replay-game');
+                
+                startGameButton.addEventListener('click', () => {
+                    playerHand = drawUniqueCards(cardsData, 5);
+                    opponentHand = drawUniqueCards(cardsData, 5);
+                    displayHand(playerHand, 'player-hand', true);
+                    displayHand([opponentHand[0]], 'opponent-hand', false);
+                    startGameButton.style.display = 'none';
+                    replayGameButton.style.display = 'block';
+                    updateScores();
+                });
+
+                replayGameButton.addEventListener('click', () => {
+                    playerHand = drawUniqueCards(cardsData, 5);
+                    opponentHand = drawUniqueCards(cardsData, 5);
+                    displayHand(playerHand, 'player-hand', true);
+                    displayHand([opponentHand[0]], 'opponent-hand', false);
+                    playerScore = 0;
+                    opponentScore = 0;
+                    document.getElementById('duel-container').innerHTML = '';
+                    updateScores();
+                });
+            })
+            .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
+
+        function drawUniqueCards(cardsData, numberOfCards) {
+            const hand = [];
+            const selectedCards = new Set();
+
+            while (hand.length < numberOfCards) {
+                const randomCard = cardsData[Math.floor(Math.random() * cardsData.length)];
+                if (!selectedCards.has(randomCard.unique_id)) {
+                    hand.push(randomCard);
+                    selectedCards.add(randomCard.unique_id);
+                }
+            }
+            return hand;
+        }
+
+        function displayHand(hand, elementId, isPlayer) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            hand.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.innerHTML = `
+                    <img src="${card.printings[0].image_url}" alt="${card.name}">
+                    <h2>${card.name}</h2>
+                    <p>${card.flavor_text_plain}</p>
+                    <p>${card.types}</p>
+                    ${isPlayer ? `<button onclick="playCard(${index})">Jouer cette carte</button>` : ''}
+                `;
+                container.appendChild(cardElement);
+            });
+        }
+
+        function playCard(playerCardIndex) {
+            const playerCard = playerHand.splice(playerCardIndex, 1)[0];
+            const opponentCard = opponentHand.shift();
+
+            const playerDefense = parseInt(playerCard.defense) || 0;
+            const playerPower = parseInt(playerCard.power) || 0;
+            const opponentDefense = parseInt(opponentCard.defense) || 0;
+            const opponentPower = parseInt(opponentCard.power) || 0;
+
+            let result = '';
+            if (playerDefense + playerPower > opponentDefense + opponentPower) {
+                playerScore++;
+                result = 'Vous avez gagné ce tour!';
+            } else if (playerDefense + playerPower < opponentDefense + opponentPower) {
+                opponentScore++;
+                result = 'Adversaire gagne ce tour!';
+            } else {
+                result = 'Égalité!';
+            }
+
+            displayHand(playerHand, 'player-hand', true);
+            displayHand([opponentCard], 'opponent-hand', false);
+
+            const duelContainer = document.getElementById('duel-container');
+            duelContainer.innerHTML = `
+                <div class="card">
+                    <img src="${playerCard.printings[0].image_url}" alt="${playerCard.name}">
+                    <h2>${playerCard.name}</h2>
+                    <p>${playerCard.flavor_text}</p>
+                    <p>${playerCard.types}</p>
+                </div>
+                <div class="card">
+                    <img src="${opponentCard.printings[0].image_url}" alt="${opponentCard.name}">
+                    <h2>${opponentCard.name}</h2>
+                    <p>${opponentCard.flavor_text_plain}</p>
+                    <p>${opponentCard.types}</p>
+                </div>
+                <p>${result}</p>
+            `;
+
+            updateScores();
+
+            if (playerHand.length === 0 || opponentHand.length === 0) {
+                setTimeout(() => {
+                    alert(`Score final : Votre score ${playerScore} - Adversaire ${opponentScore}`);
+                }, 1000);
+            } else {
+                displayHand([opponentHand[0]], 'opponent-hand', false);
+            }
+        }
+
+        function updateScores() {
+            document.getElementById('player-score').textContent = playerScore;
+            document.getElementById('opponent-score').textContent = opponentScore;
+        }
+    </script>
+</body>
+</html>
+<!-- 
+Explication des Fonctions JavaScript
+Variables Globales:
+playerHand, opponentHand: Listes des cartes pour le joueur et l’adversaire.
+playerScore, opponentScore: Scores du joueur et de l’adversaire.
+Chargement des Données:
+fetch('cards.json'): Charge les données des cartes à partir d’un fichier JSON.
+then(response => response.json()): Convertit la réponse en JSON.
+then(cardsData => { ... }): Traite les données des cartes.
+Démarrage et Rejouer le Jeu:
+startGameButton.addEventListener('click', () => { ... }): Démarre le jeu en tirant 5 cartes uniques pour le joueur et l’adversaire.
+replayGameButton.addEventListener('click', () => { ... }): Redémarre le jeu avec de nouvelles cartes et réinitialise les scores.
+Tirer des Cartes Uniques:
+drawUniqueCards(cardsData, numberOfCards): Tire un nombre spécifié de cartes uniques à partir des données des cartes.
+Afficher les Cartes:
+displayHand(hand, elementId, isPlayer): Affiche les cartes dans l’élément spécifié. Si isPlayer est vrai, ajoute un bouton pour jouer la carte.
+Jouer une Carte:
+playCard(playerCardIndex): Joue une carte du joueur contre la première carte de l’adversaire, met à jour les scores et affiche le résultat du duel.
+Mettre à Jour les Scores:
+updateScores(): Met à jour les scores affichés pour le joueur et l’adversaire.
+ -->
+
+
+
+
+
