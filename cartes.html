@@ -11,43 +11,72 @@
 </head>
 
 <body>
-    <nav>
+    <nav class="text-2xl">
         <a href="index.html">Accueil</a>
         <a href="cartes.html">Cartes</a>
         <a href="jeux.html">Jouer</a>
         <a href="contact.html">Contact</a>
     </nav>
-    <h1 class="text-3xl">Nos Cartes</h1>
-    <div class="cards-container flex flex-wrap" id="cards-contain"></div>
+    <h1 class="text-3xl mt-3 mb-4">Les Cartes</h1>    
+    <button class="mt-3 mb-3" onclick="drawCard()">Plus de cartes</button>
+
+    <div class="cards-container flex flex-wrap" id="cards-contain">
+
+    <div id="card-contain"></div>
+</div>
+
+
     <footer>
-     © 2024 Jeux de Cartes. Said@Tous droits réservés.
+        © 2024 Jeux de Cartes. Said@Tous droits réservés.
 
     </footer>
 
     <script>
         fetch('cards.json')
-    .then(response => response.json())
-    .then(cardsData => {
-        const container = document.getElementById('cards-contain');
-        const displayedCards = new Set();
-        let cardCount = 0; // Compteur de cartes affichées
+            .then(response => response.json())
+            .then(cardsData => {
+                const container = document.getElementById('cards-contain');
+                const displayedCards = new Set();
+                let cardCount = 0; // Compteur de cartes affichées
 
-        cardsData.forEach(card => {
-            if (cardCount < 10 && !displayedCards.has(card.image_url)) {
-                const cardElement = document.createElement('div');
-                cardElement.className = 'card';
-                cardElement.innerHTML = `
+                cardsData.forEach(card => {
+                    if (cardCount < 10 && !displayedCards.has(card.image_url)) {
+                        const cardElement = document.createElement('div');
+                        cardElement.className = 'card';
+                        cardElement.innerHTML = `
                     <img src="${card.printings[0].image_url}" alt="${card.id}">
                 `;
-                container.appendChild(cardElement);
-                displayedCards.add(card.unique_id);
-                cardCount++; // Incrémente le compteur de cartes
-            }
-        });
-    })
-    .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
+                        container.appendChild(cardElement);
+                        displayedCards.add(card.unique_id);
+                        cardCount++; // Incrémente le compteur de cartes
+                    }
+                });
+            })
+            .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
 
-  
+        function drawCard() {
+            fetch('cards.json')
+                .then(response => response.json())
+                .then(cardsData => {
+                    const randomCard = cardsData[Math.floor(Math.random() * cardsData.length)];
+                    const container = document.getElementById('card-contain');
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'card';
+                    cardElement.innerHTML = `
+                <img src="${randomCard.printings[0].image_url}" alt="${randomCard.id}">
+            `;
+                    container.appendChild(cardElement);
+                })
+                .catch(error => console.error('Error loading JSON data:', error));
+        }
+
+
+
+
+
+
+
+
 
     </script>
 </body>
@@ -57,11 +86,3 @@
 
 
 </html>
-
-
-
-
-
-
-
-
