@@ -92,9 +92,6 @@
                 cardElement.className = 'card';
                 cardElement.innerHTML = `
                     <img src="${card.printings[0].image_url}" alt="${card.name}">
-                    <h2>${card.name}</h2>
-                    <p>${card.flavor_text_plain}</p>
-                    <p>${card.types}</p>
                     ${isPlayer ? `<button onclick="playCard(${index})">Jouer cette carte</button>` : ''}
                 `;
                 container.appendChild(cardElement);
@@ -128,15 +125,9 @@
             duelContainer.innerHTML = `
                 <div class="card">
                     <img src="${playerCard.printings[0].image_url}" alt="${playerCard.name}">
-                    <h2>${playerCard.name}</h2>
-                    <p>${playerCard.flavor_text}</p>
-                    <p>${playerCard.types}</p>
                 </div>
                 <div class="card">
                     <img src="${opponentCard.printings[0].image_url}" alt="${opponentCard.name}">
-                    <h2>${opponentCard.name}</h2>
-                    <p>${opponentCard.flavor_text_plain}</p>
-                    <p>${opponentCard.types}</p>
                 </div>
                 <p>${result}</p>
             `;
@@ -159,29 +150,3 @@
     </script>
 </body>
 </html>
-<!-- 
-Explication des Fonctions JavaScript
-Variables Globales:
-playerHand, opponentHand: Listes des cartes pour le joueur et l’adversaire.
-playerScore, opponentScore: Scores du joueur et de l’adversaire.
-Chargement des Données:
-fetch('cards.json'): Charge les données des cartes à partir d’un fichier JSON.
-then(response => response.json()): Convertit la réponse en JSON.
-then(cardsData => { ... }): Traite les données des cartes.
-Démarrage et Rejouer le Jeu:
-startGameButton.addEventListener('click', () => { ... }): Démarre le jeu en tirant 5 cartes uniques pour le joueur et l’adversaire.
-replayGameButton.addEventListener('click', () => { ... }): Redémarre le jeu avec de nouvelles cartes et réinitialise les scores.
-Tirer des Cartes Uniques:
-drawUniqueCards(cardsData, numberOfCards): Tire un nombre spécifié de cartes uniques à partir des données des cartes.
-Afficher les Cartes:
-displayHand(hand, elementId, isPlayer): Affiche les cartes dans l’élément spécifié. Si isPlayer est vrai, ajoute un bouton pour jouer la carte.
-Jouer une Carte:
-playCard(playerCardIndex): Joue une carte du joueur contre la première carte de l’adversaire, met à jour les scores et affiche le résultat du duel.
-Mettre à Jour les Scores:
-updateScores(): Met à jour les scores affichés pour le joueur et l’adversaire.
- -->
-
-
-
-
-

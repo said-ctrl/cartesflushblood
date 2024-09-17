@@ -25,34 +25,29 @@
     </footer>
 
     <script>
-   
-
-fetch('cards.json')
+        fetch('cards.json')
     .then(response => response.json())
     .then(cardsData => {
         const container = document.getElementById('cards-contain');
         const displayedCards = new Set();
+        let cardCount = 0; // Compteur de cartes affichées
 
         cardsData.forEach(card => {
-            if (!displayedCards.has(card.image_url)) {
+            if (cardCount < 10 && !displayedCards.has(card.image_url)) {
                 const cardElement = document.createElement('div');
                 cardElement.className = 'card';
                 cardElement.innerHTML = `
                     <img src="${card.printings[0].image_url}" alt="${card.id}">
-                    <h2>${card.name}</h2>
-                    <p>${card.functional_text_plain}</p>
-                    <p>${card.types}
                 `;
                 container.appendChild(cardElement);
                 displayedCards.add(card.unique_id);
+                cardCount++; // Incrémente le compteur de cartes
             }
         });
     })
     .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
 
-
-
-
+  
 
     </script>
 </body>
